@@ -1,0 +1,46 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="chrome=1"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta name=author content="L33"><link rel=canonical href=http://blog.usec.cc/posts/misc/hugo-github-pages/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/site.webmanifest><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><meta name=msapplication-TileColor content="#da532c"><meta name=theme-color content="#ffffff"><title>使用Github Actions自动部署Hugo至Github Pages | L33'</title><meta name=title content="使用Github Actions自动部署Hugo至Github Pages | L33'"><link rel=stylesheet href=/font/iconfont.css><link rel=stylesheet href=/css/main.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http:\/\/blog.usec.cc\/"},"articleSection":"posts","name":"使用Github Actions自动部署Hugo至Github Pages","headline":"使用Github Actions自动部署Hugo至Github Pages","description":"生成repo的token 首先需要在个人设置中生成GitHub token，并将其添加到对应repo，在下述的Github Actions配置文件中引用，以使得自动构建能够推送生成的静态文件至repo中。\n添加workflow 在hugo项目根目录中新建.github\/workflows\/gh-pages.yml，内容如下：\nname: github pages on: push: branches: - master jobs: deploy: runs-on: ubuntu-18.04 steps: - uses: actions\/checkout@v2 #with: # submodules: true # Fetch Hugo themes # fetch-depth: 0 # Fetch all history for .GitInfo and .Lastmod - name: Setup Hugo uses: peaceiris\/actions-hugo@v2 with: hugo-version: \x26#39;0.68.3\x26#39; extended: true - name: Build run: hugo --minify - name: Deploy uses: peaceiris\/actions-gh-pages@v3 with: github_token: ${{ secrets.TOKEN }} publish_dir: .\/public cname: blog.","inLanguage":"en-us","author":"L33","creator":"L33","publisher":"L33","accountablePerson":"L33","copyrightHolder":"L33","copyrightYear":"2020","datePublished":"2020-04-20 09:07:44 \x2b0800 \x2b0800","dateModified":"2020-04-20 09:07:44 \x2b0800 \x2b0800","url":"http:\/\/blog.usec.cc\/posts\/misc\/hugo-github-pages\/","wordCount":"76","keywords":["L33\x27"]}</script></head><body><div class=wrapper><nav class=navbar><div class=container><div class="navbar-header header-logo"><a href=javascript:void(0); class=theme-switch><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href=http://blog.usec.cc/>L33'</a></div><div class="menu navbar-right"><a class=menu-item href=/posts/>Posts</a>
+<a class=menu-item href=/categories/>Categories</a>
+<a class=menu-item href=/tags/>Tags</a>
+<a class=menu-item href=/about>About</a></div></div></nav><nav class=navbar-mobile id=nav-mobile style=display:none><div class=container><div class=navbar-header><div><a href=javascript:void(0); class=theme-switch><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href=http://blog.usec.cc/>L33'</a></div><div class=menu-toggle><span></span><span></span><span></span></div></div><div class=menu id=mobile-menu><a class=menu-item href=/posts/>Posts</a>
+<a class=menu-item href=/categories/>Categories</a>
+<a class=menu-item href=/tags/>Tags</a>
+<a class=menu-item href=/about>About</a></div></div></nav><main class=main><div class=container><article class=post-warp itemscope itemtype=http://schema.org/Article><header class=post-header><h1 class=post-title itemprop="name headline">使用Github Actions自动部署Hugo至Github Pages</h1><div class=post-meta>Written by <a itemprop=name href=http://blog.usec.cc/ rel=author>L33</a> with ♥
+<span class=post-time>on <time datetime=2020-04-20 itemprop=datePublished>April 20, 2020</time></span>
+in</div></header><div class=post-content><h2 id=生成repo的token>生成repo的token</h2><p>首先需要在个人设置中生成GitHub token，并将其添加到对应repo，在下述的Github Actions配置文件中引用，以使得自动构建能够推送生成的静态文件至repo中。</p><h2 id=添加workflow>添加workflow</h2><p>在hugo项目根目录中新建<code>.github/workflows/gh-pages.yml</code>，内容如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#66d9ef>name</span>: github pages
+
+<span style=color:#66d9ef>on</span>:
+  <span style=color:#66d9ef>push</span>:
+    <span style=color:#66d9ef>branches</span>:
+      - master
+
+<span style=color:#66d9ef>jobs</span>:
+  <span style=color:#66d9ef>deploy</span>:
+    <span style=color:#66d9ef>runs-on</span>: ubuntu<span style=color:#ae81ff>-18.04</span>
+    <span style=color:#66d9ef>steps</span>:
+      - <span style=color:#66d9ef>uses</span>: actions/checkout@v2
+        <span style=color:#75715e>#with:</span>
+        <span style=color:#75715e>#  submodules: true  # Fetch Hugo themes</span>
+        <span style=color:#75715e>#  fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod</span>
+
+      - <span style=color:#66d9ef>name</span>: Setup Hugo
+        <span style=color:#66d9ef>uses</span>: peaceiris/actions-hugo@v2
+        <span style=color:#66d9ef>with</span>:
+          <span style=color:#66d9ef>hugo-version</span>: <span style=color:#e6db74>&#39;0.68.3&#39;</span>
+          <span style=color:#66d9ef>extended</span>: <span style=color:#66d9ef>true</span>
+
+      - <span style=color:#66d9ef>name</span>: Build
+        <span style=color:#66d9ef>run</span>: hugo --minify
+
+      - <span style=color:#66d9ef>name</span>: Deploy
+        <span style=color:#66d9ef>uses</span>: peaceiris/actions-gh-pages@v3
+        <span style=color:#66d9ef>with</span>:
+          <span style=color:#66d9ef>github_token</span>: ${{ secrets.TOKEN }}
+          <span style=color:#66d9ef>publish_dir</span>: ./public
+          <span style=color:#66d9ef>cname</span>: blog.usec.cc
+</code></pre></div><p>修改<code>github_token</code>的名称，如果需要，修改对应配置，如hugo版本，是否拉取theme新版本等。</p><p>默认推送至当前repo的<code>gh-pages</code>分支中，可自定义。</p><hr><p>参考：</p><p><a href=https://github.com/peaceiris/actions-hugo>actions-hugo</a></p></div><div class=post-copyright><p class=copyright-item><span>Author:</span>
+<span>L33</span></p><p class=copyright-item><span>Link:</span>
+<a href=http://blog.usec.cc/posts/misc/hugo-github-pages/>http://blog.usec.cc/posts/misc/hugo-github-pages/</a></p></div><div class=post-tags><section><a href=javascript:window.history.back();>back</a></span> ·
+<span><a href=http://blog.usec.cc/>home</a></span></section></div><div class=post-nav></div><div class=post-comment></div></article></div></main><footer class=footer><div class=copyright>&copy;
+<span itemprop=copyrightYear>2020 - 2020</span>
+<span class=with-love><i class="iconfont icon-love"></i></span><span class=author itemprop=copyrightHolder><a href=http://blog.usec.cc/>L33</a> |</span>
+<span>Powered by <a href=https://gohugo.io/ target=_blank rel="external nofollow">Hugo</a> & <a href=https://github.com/liuzc/leaveit target=_blank rel="external nofollow">LeaveIt</a></span></div></footer><script src=/js/vendor_no_gallery.min.js async></script></div></body></html>

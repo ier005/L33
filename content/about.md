@@ -1,7 +1,7 @@
 +++
 
 title = "About"
-menu = "main" 
+menu = "main"
 
 +++
 

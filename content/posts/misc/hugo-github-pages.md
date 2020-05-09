@@ -1,6 +1,7 @@
 ---
 title: "使用Github Actions自动部署Hugo至Github Pages"
 date: 2020-04-20T09:07:44+08:00
+categories: [Misc]
 draft: false
 ---
 

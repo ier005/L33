@@ -1,9 +1,11 @@
 baseURL: "http://blog.usec.cc/"
-languageCode: "en-us"
 title: "L33'"
+languageCode: "zh-Hans"
+hasCJKLanguage: true
 theme: 'LeaveIt'
 
 paginate: 12
+summaryLength: 140
 enableEmoji: true
 enableRobotsTXT: true
 googleAnalytics: ""
@@ -11,6 +13,7 @@ googleAnalytics: ""
 preserveTaxonomyNames: true
 permalinks:
   post: /:year/:month/:title/
+
 
 menu:
   main:
@@ -23,9 +26,6 @@ menu:
   - name: Tags
     url: /tags/
     weight: 3
-  - name: About
-    url: /about
-    weight: 4
 
 params:
   author: "L33"

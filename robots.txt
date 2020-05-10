@@ -63,4 +63,4 @@ Disallow: /
 User-agent: ZoominfoBot
 Disallow: /
 
-Sitemap: http://blog.usec.cc/sitemap.xml
+Sitemap: https://blog.usec.cc/sitemap.xml

@@ -105,14 +105,13 @@ PS > Invoke-WMIExec -Target 192.168.232.130 -Domain pentest.com -Username test1 
 [+] Command executed with process ID 8984 on 192.168.232.130
 ```
 
-此种方式执行命令是以所指定的用户权限执行的，并且不会再目标机器中留下日志。
+此种方式执行命令是以所指定的用户权限执行的，并且不会在目标机器中留下日志。
 
 ## 防御方式
 
 简单谈一下缓解此攻击的方式（并不全面）：
 
 - Microsoft本地管理员密码解决方案（LAPS）：随机化所有域成员本地管理员密码，密码按照较强的密码策略生成，定期修改。这使得用相同凭据横向渗透变得很困难。
-
 - credential guard：win10引入，CG禁止内存读取，凭据存储在CG中，从lsass输入challenge等信息，CG处理并输出结果
 
 ---

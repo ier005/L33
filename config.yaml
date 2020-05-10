@@ -9,6 +9,7 @@ summaryLength: 140
 enableEmoji: true
 enableRobotsTXT: true
 googleAnalytics: "UA-166034540-1"
+disqusShortname: "l33-1"
 
 preserveTaxonomyNames: true
 permalinks:

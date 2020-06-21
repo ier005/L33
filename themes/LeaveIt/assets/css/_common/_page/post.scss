@@ -93,16 +93,16 @@
         }
 
         code:not([class]) {
-            padding: 5px 5px;
-            background: #fff;
-            border: 1px solid #ddd;
-            box-shadow: 1px 1px 0 #fff, 2px 2px 0 #ddd;
+            padding: 2px 4px;
+            background: #f9f2f4;
+            color: #ef3982;
+            border-radius: 2px;
             margin-left: 3px;
             margin-right: 3px;
 
             .dark-theme &:not([class]) {
-                background: transparent;
-                box-shadow: 1px 1px 0 $dark-font-secondary-color, 2px 2px 0 $dark-font-secondary-color;
+                background: #2d2d2d;
+                color: #e06c75;
             }
         }
 
@@ -112,7 +112,7 @@
 
         table {
             max-width: 100%;
-            margin: 10px 0;
+            margin: 10px auto;
             border-spacing: 0;
             box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.125);
 
@@ -149,8 +149,10 @@
             margin: 0 auto;
             overflow: hidden;
         }
-
      
+        hr {
+            margin: 16px auto;
+        }
 
         img[data-action="zoom"] {
             cursor: zoom-in;
@@ -236,6 +238,6 @@
     }
 
     .post-comment{
-        padding: 3em 0;
+        padding: 4em 0 0 0;
     }
 }

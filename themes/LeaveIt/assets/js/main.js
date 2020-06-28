@@ -6,6 +6,7 @@ jQuery(function($) {
 
     _Blog.prettify = function() {
         $('pre').addClass('prettyprint linenums').attr('style', 'overflow:auto;');
+        $('pre code').addClass('not-inline')
         window.prettyPrint && prettyPrint();
     };
 

